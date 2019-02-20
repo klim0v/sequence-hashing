@@ -16,7 +16,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	number, err := strconv.Atoi(args[0])
+	number, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil || number < 99999 {
 		fmt.Println("Исходное число (минимум 6 знаков)")
 		os.Exit(1)

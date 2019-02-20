@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"golang.org/x/crypto/sha3"
 	"math/rand"
@@ -14,7 +15,7 @@ const MaxCount = 10000
 var (
 	once   sync.Once
 	mu     sync.Mutex
-	unique = make(map[int]struct{})
+	unique = make(map[uint64]struct{})
 )
 
 type Result struct {
@@ -30,7 +31,7 @@ func (r *Result) MarshalBinary() (data []byte, err error) {
 	return json.Marshal(r)
 }
 
-func NewResult(number int) *Result {
+func NewResult(number uint64) *Result {
 	mu.Lock()
 	_, ok := unique[number]
 	if ok {
@@ -38,17 +39,21 @@ func NewResult(number int) *Result {
 			return nil
 		}
 		mu.Unlock()
+
 		once.Do(func() {
 			rand.Seed(time.Now().UnixNano())
 		})
-		number = number - (number % MaxCount) + rand.Intn(MaxCount)
+
+		number = number - (number % MaxCount) + uint64(rand.Intn(MaxCount))
 		return NewResult(number)
 	}
 	unique[number] = struct{}{}
 	mu.Unlock()
-	s := strconv.Itoa(number)
+
+	bytes := make([]byte, 8)
+	binary.LittleEndian.PutUint64(bytes, number)
 	h := sha3.New256()
-	h.Write([]byte(s))
+	h.Write(bytes)
 	bs := h.Sum(nil)
-	return &Result{Number: s, Hash: bs}
+	return &Result{Number: strconv.FormatUint(number, 10), Hash: bs}
 }
