@@ -2,14 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/klim0v/sequence-hashing/pkg/entity"
 	"github.com/klim0v/sequence-hashing/pkg/redis"
 	"log"
 	"net/http"
 	"sync"
-	"time"
 )
 
 var (
@@ -60,21 +57,16 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 }
 
 func worker() {
-	pubsub := redis.NewClient().Subscribe()
-	if _, err := pubsub.Receive(); err != nil {
-		log.Println(err)
-	}
-	for msg := range pubsub.Channel() {
-		fmt.Println(msg.Payload)
-		var data entity.Result
-		if err := data.UnmarshalBinary([]byte(msg.Payload)); err != nil {
+	for {
+		result, err := redis.NewClient().Pop()
+		if err != nil {
 			continue
 		}
 		for _, c := range connections {
-			if err := c.WriteMessage(websocket.TextMessage, data.Hash); err != nil {
+			if err := c.WriteMessage(websocket.TextMessage, result.Hash); err != nil {
 				log.Println(err)
 			}
 		}
-		time.Sleep(3 * time.Second)
+		//time.Sleep(3 * time.Second)
 	}
 }

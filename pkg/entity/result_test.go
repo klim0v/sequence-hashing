@@ -37,6 +37,7 @@ func TestNewResultMoreMaxVariants(t *testing.T) {
 	}
 	unique = map[uint64]struct{}{}
 }
+
 func TestNewResultBinaries(t *testing.T) {
 	unique = map[uint64]struct{}{}
 	result := NewResult(startNumber)

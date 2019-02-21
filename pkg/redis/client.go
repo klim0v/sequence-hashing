@@ -28,10 +28,19 @@ func NewClient() Client {
 }
 
 func (c Client) Push(result *entity.Result) (err error) {
-	err = c.rc.Publish(key, result).Err()
+	err = c.rc.RPush(key, result).Err()
 	return
 }
 
-func (c Client) Subscribe() *redis.PubSub {
-	return c.rc.Subscribe(key)
+func (c Client) Pop() (*entity.Result, error) {
+	gotten, err := c.rc.LPop(key).Result()
+	if err != nil {
+		return nil, err
+	}
+	result := new(entity.Result)
+	err = result.UnmarshalBinary([]byte(gotten))
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
