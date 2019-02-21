@@ -18,6 +18,7 @@ func TestClientPushPop(t *testing.T) {
 	client := NewClient()
 	_ = client.Push(&entity.Result{Number: number})
 	recvResult, _ := client.Pop()
+	_ = client.rc.Close()
 	if recvResult == nil {
 		t.Fatal("result is nil")
 	}
