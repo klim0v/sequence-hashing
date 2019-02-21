@@ -9,25 +9,18 @@ import (
 	"strconv"
 )
 
+var (
+	argCountErrorMessage = "не верное количество агрументов"
+	arg1ErrorMessage     = "исходное число (минимум 6 знаков), %s"
+	arg2ErrorMessage     = "число последовательностей для генерации следующих чисел, %s"
+)
+
 func main() {
-	args := os.Args[1:]
-	if len(args) != 2 {
-		fmt.Println("Не верное количество агрументов: 1.Исходное число (минимум 6 знаков). 2.Число последовательностей для генерации следующих чисел.")
+	number, count, err := Parse(os.Args[1:])
+	if err != nil {
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-
-	number, err := strconv.ParseUint(args[0], 10, 64)
-	if err != nil || number < 99999 {
-		fmt.Println("Исходное число (минимум 6 знаков)")
-		os.Exit(1)
-	}
-
-	count, err := strconv.Atoi(args[1])
-	if err != nil || count < 0 || count > entity.MaxCount {
-		fmt.Println("Число последовательностей для генерации следующих чисел.")
-		os.Exit(1)
-	}
-
 	var g errgroup.Group
 	for i := 0; i <= count; i++ {
 		g.Go(func() error {
@@ -38,4 +31,22 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func Parse(args []string) (number uint64, count int, err error) {
+	if len(args) != 2 {
+		err = fmt.Errorf(argCountErrorMessage)
+		return
+	}
+	number, err = strconv.ParseUint(args[0], 10, 64)
+	if err != nil || number < 99999 {
+		err = fmt.Errorf(arg1ErrorMessage, args[0])
+		return
+	}
+	count, err = strconv.Atoi(args[1])
+	if err != nil || count < 0 || count > entity.MaxCount {
+		err = fmt.Errorf(arg2ErrorMessage, args[1])
+		return
+	}
+	return
 }

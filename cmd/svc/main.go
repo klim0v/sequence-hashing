@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	addr          = flag.String("addr", "localhost:8080", "http service address")
 	upgrader      = websocket.Upgrader{}
 	connections   = map[string]*websocket.Conn{}
 	muConnections sync.RWMutex
 )
 
 func main() {
+	addr := flag.String("addr", "localhost:8080", "http service address")
 	flag.Parse()
 	go worker()
 
