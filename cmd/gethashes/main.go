@@ -5,6 +5,7 @@ import (
 	"github.com/klim0v/sequence-hashing/pkg/entity"
 	"github.com/klim0v/sequence-hashing/pkg/redis"
 	"golang.org/x/sync/errgroup"
+	"log"
 	"os"
 	"strconv"
 )
@@ -18,7 +19,7 @@ var (
 func main() {
 	number, count, err := Parse(os.Args[1:])
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err)
 		os.Exit(1)
 	}
 	var g errgroup.Group
