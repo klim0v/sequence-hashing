@@ -35,10 +35,10 @@ func NewResult(number uint64) *Result {
 	mu.Lock()
 	_, ok := unique[number]
 	if ok {
+		mu.Unlock()
 		if len(unique) == MaxCount {
 			return nil
 		}
-		mu.Unlock()
 
 		once.Do(func() {
 			rand.Seed(time.Now().UnixNano())
