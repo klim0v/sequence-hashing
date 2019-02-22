@@ -25,7 +25,7 @@ func TestClientPopUnmarshal(t *testing.T) {
 	client := NewClient()
 	client.rc.RPush(key, "test")
 	_, err := client.Pop()
-	if err != nil && err == redis.Nil {
+	if err == redis.Nil {
 		t.Error(err)
 	}
 }

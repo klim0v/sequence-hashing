@@ -35,8 +35,9 @@ func NewResult(number uint64) *Result {
 	mu.Lock()
 	_, ok := unique[number]
 	if ok {
+		count := len(unique)
 		mu.Unlock()
-		if len(unique) == MaxCount {
+		if count == MaxCount {
 			return nil
 		}
 
