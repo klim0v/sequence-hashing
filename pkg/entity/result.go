@@ -31,7 +31,7 @@ func (r *Result) MarshalBinary() (data []byte, err error) {
 	return json.Marshal(r)
 }
 
-func NewResult(number uint64) *Result {
+func MakeResult(number uint64) *Result {
 	mu.Lock()
 	_, ok := unique[number]
 	if ok {
@@ -46,11 +46,15 @@ func NewResult(number uint64) *Result {
 		})
 
 		number = number - (number % MaxCount) + uint64(rand.Intn(MaxCount))
-		return NewResult(number)
+		return MakeResult(number)
 	}
 	unique[number] = struct{}{}
 	mu.Unlock()
 
+	return newResult(number)
+}
+
+func newResult(number uint64) *Result {
 	bytes := make([]byte, 8)
 	binary.LittleEndian.PutUint64(bytes, number)
 	h := sha3.New256()

@@ -25,7 +25,7 @@ func main() {
 	var g errgroup.Group
 	for i := 0; i <= count; i++ {
 		g.Go(func() error {
-			return redis.NewClient().Push(entity.NewResult(number))
+			return redis.NewClient().Push(entity.MakeResult(number))
 		})
 	}
 	if err := g.Wait(); err != nil {

@@ -6,11 +6,11 @@ import (
 
 const startNumber uint64 = 111111
 
-func TestNewResult(t *testing.T) {
+func TestMakeResult(t *testing.T) {
 	unique = map[uint64]struct{}{}
 	valid := true
 	for i := 0; i < MaxCount; i++ {
-		result := NewResult(startNumber)
+		result := MakeResult(startNumber)
 		if result == nil {
 			valid = false
 			break
@@ -22,11 +22,11 @@ func TestNewResult(t *testing.T) {
 	unique = map[uint64]struct{}{}
 }
 
-func TestNewResultMoreMaxVariants(t *testing.T) {
+func TestMakeResultMoreMaxVariants(t *testing.T) {
 	unique = map[uint64]struct{}{}
 	valid := true
 	for i := 0; i < MaxCount+1; i++ {
-		result := NewResult(startNumber)
+		result := MakeResult(startNumber)
 		if result == nil {
 			valid = false
 			break
@@ -38,9 +38,9 @@ func TestNewResultMoreMaxVariants(t *testing.T) {
 	unique = map[uint64]struct{}{}
 }
 
-func TestNewResultBinaries(t *testing.T) {
+func TestMakeResultBinaries(t *testing.T) {
 	unique = map[uint64]struct{}{}
-	result := NewResult(startNumber)
+	result := MakeResult(startNumber)
 	bytes, _ := result.MarshalBinary()
 	unmResult := new(Result)
 	_ = unmResult.UnmarshalBinary(bytes)
