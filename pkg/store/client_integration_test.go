@@ -1,6 +1,6 @@
 // +build integration
 
-package redis
+package store
 
 import (
 	"github.com/go-redis/redis"
@@ -8,10 +8,13 @@ import (
 	"testing"
 )
 
+var storeClient = NewClient(redis.NewClient(&redis.Options{
+	Addr: os.Getenv("REDIS_ADDR"),
+}))
+
 func TestClientPushPop(t *testing.T) {
 	number := "111111"
-	client := NewClient()
-	_ = client.Push(&entity.Result{Number: number})
+	_ = storeClient.Push(&entity.Result{Number: number})
 	recvResult, _ := client.Pop()
 	if recvResult == nil {
 		t.Fatal("result is nil")
@@ -22,8 +25,7 @@ func TestClientPushPop(t *testing.T) {
 }
 
 func TestClientPopUnmarshal(t *testing.T) {
-	client := NewClient()
-	client.rc.RPush(key, "test")
+	storeClient.rc.RPush(key, "test")
 	_, err := client.Pop()
 	if err == redis.Nil {
 		t.Error(err)
@@ -31,8 +33,7 @@ func TestClientPopUnmarshal(t *testing.T) {
 }
 
 func TestClientPopEmpty(t *testing.T) {
-	client := NewClient()
-	client.rc.Del(key)
+	storeClient.rc.Del(key)
 	_, err := client.Pop()
 	if err != nil && err != redis.Nil {
 		t.Error(err)

@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-redis/redis"
 	"github.com/klim0v/sequence-hashing/pkg/entity"
-	"github.com/klim0v/sequence-hashing/pkg/redis"
+	"github.com/klim0v/sequence-hashing/pkg/store"
 	"golang.org/x/sync/errgroup"
 	"log"
 	"os"
@@ -23,9 +24,12 @@ func main() {
 		os.Exit(1)
 	}
 	var g errgroup.Group
+	storeClient := store.NewClient(redis.NewClient(&redis.Options{
+		Addr: os.Getenv("REDIS_ADDR"),
+	}))
 	for i := 0; i <= count; i++ {
 		g.Go(func() error {
-			return redis.NewClient().Push(entity.MakeResult(number))
+			return storeClient.Push(entity.MakeResult(number))
 		})
 	}
 	if err := g.Wait(); err != nil {

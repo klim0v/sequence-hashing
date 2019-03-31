@@ -1,15 +1,8 @@
-package redis
+package store
 
 import (
 	"github.com/go-redis/redis"
 	"github.com/klim0v/sequence-hashing/pkg/entity"
-	"os"
-	"sync"
-)
-
-var (
-	once        sync.Once
-	redisClient *redis.Client
 )
 
 const key = "list"
@@ -18,13 +11,8 @@ type Client struct {
 	rc *redis.Client
 }
 
-func NewClient() Client {
-	once.Do(func() {
-		redisClient = redis.NewClient(&redis.Options{
-			Addr: os.Getenv("REDIS_ADDR"),
-		})
-	})
-	return Client{redisClient}
+func NewClient(rc *redis.Client) Client {
+	return Client{rc}
 }
 
 func (c Client) Push(result *entity.Result) (err error) {

@@ -2,11 +2,14 @@ package main
 
 import (
 	"flag"
+	"github.com/go-redis/redis"
 	"github.com/gorilla/websocket"
-	"github.com/klim0v/sequence-hashing/pkg/redis"
+	"github.com/klim0v/sequence-hashing/pkg/store"
 	"log"
 	"net/http"
+	"os"
 	"sync"
+	"time"
 )
 
 var (
@@ -18,7 +21,9 @@ var (
 func main() {
 	addr := flag.String("addr", "localhost:8080", "http service address")
 	flag.Parse()
-	go worker()
+	go worker(store.NewClient(redis.NewClient(&redis.Options{
+		Addr: os.Getenv("REDIS_ADDR"),
+	})))
 
 	http.HandleFunc("/ws", serveWs)
 	log.Fatal(http.ListenAndServe(*addr, nil))
@@ -56,9 +61,9 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	<-done
 }
 
-func worker() {
+func worker(storeClient store.Client) {
 	for {
-		result, err := redis.NewClient().Pop()
+		result, err := storeClient.Pop()
 		if err != nil {
 			continue
 		}
@@ -67,6 +72,6 @@ func worker() {
 				log.Println(err)
 			}
 		}
-		//time.Sleep(3 * time.Second)
+		time.Sleep(3 * time.Second)
 	}
 }
